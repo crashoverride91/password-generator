@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator v1.0</title>
+    <!-- Tailwind CSS CDN - Carica il framework CSS per uno styling rapido e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Stili personalizzati per il tema scuro e l'aspetto dell'applicazione */
+        body {
+            font-family: 'Inter', sans-serif; /* Imposta il font principale 'Inter' */
+            background-color: #1a202c; /* Sfondo del corpo molto scuro per un tema notturno */
+            display: flex; /* Utilizza flexbox per centrare il contenuto */
+            justify-content: center; /* Centra orizzontalmente */
+            align-items: center; /* Centra verticalmente */
+            min-height: 100vh; /* Altezza minima del 100% della viewport height */
+            padding: 20px; /* Padding su tutti i lati per evitare che il contenuto tocchi i bordi */
+            box-sizing: border-box; /* Include padding e border nel calcolo della larghezza/altezza */
+            color: #e2e8f0; /* Colore del testo predefinito chiaro */
+        }
+        .container {
+            max-width: 600px; /* Larghezza massima del contenitore */
+            width: 100%; /* Larghezza al 100% del genitore, fino a max-width */
+            background-color: #2d3748; /* Sfondo del contenitore, leggermente più chiaro del body */
+            border-radius: 1.5rem; /* Bordi arrotondati pronunciati */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2); /* Ombra scura e profonda */
+            padding: 2.5rem; /* Padding interno del contenitore */
+            display: flex; /* Utilizza flexbox per disporre gli elementi in colonna */
+            flex-direction: column; /* Gli elementi sono disposti in colonna */
+            gap: 1.5rem; /* Spazio tra gli elementi flex */
+            border: 1px solid #4a5568; /* Bordo sottile per aggiungere profondità visiva */
+        }
+        h1 {
+            color: #a78bfa; /* Colore viola chiaro per il titolo */
+        }
+        .input-group {
+            display: flex; /* Utilizza flexbox per gli elementi del gruppo input */
+            flex-direction: column; /* Gli elementi sono disposti in colonna */
+            gap: 0.75rem; /* Spazio tra gli elementi del gruppo input */
+        }
+        .input-label {
+            font-weight: 600; /* Grassetto per le etichette */
+            color: #cbd5e1; /* Colore etichetta chiaro */
+        }
+        .range-input {
+            -webkit-appearance: none; /* Rimuove lo stile predefinito del browser per il range input */
+            width: 100%; /* Larghezza al 100% */
+            height: 8px; /* Altezza della barra */
+            background: #4a5568; /* Sfondo della barra del range */
+            border-radius: 5px; /* Bordi arrotondati per la barra */
+            outline: none; /* Rimuove il bordo di focus predefinito */
+            transition: opacity .2s; /* Transizione per l'opacità */
+        }
+        /* Stili per il "pollice" (thumb) del range input in WebKit (Chrome, Safari) */
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Rimuove lo stile predefinito */
+            appearance: none; /* Rimuove lo stile predefinito */
+            width: 20px; /* Larghezza del pollice */
+            height: 20px; /* Altezza del pollice */
+            border-radius: 50%; /* Rende il pollice circolare */
+            background: #a78bfa; /* Colore viola per il pollice */
+            cursor: pointer; /* Cambia il cursore a "pointer" al hover */
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.4); /* Ombra esterna per un effetto "glow" */
+            transition: background-color 0.2s ease-in-out; /* Transizione per il colore di sfondo */
+        }
+        /* Stili per il "pollice" del range input al hover */
+        .range-input::-webkit-slider-thumb:hover {
+            background: #8b5cf6; /* Viola più scuro al hover */
+        }
+        .text-output {
+            width: 100%; /* Larghezza al 100% */
+            padding: 0.75rem 1rem; /* Padding interno */
+            background-color: #4a5568; /* Sfondo del campo output più scuro */
+            border: 2px solid #6366f1; /* Bordo indaco */
+            border-radius: 0.75rem; /* Bordi arrotondati */
+            font-size: 1.125rem; /* Dimensione del font */
+            outline: none; /* Rimuove il bordo di focus predefinito */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transizioni per bordo e ombra */
+            color: #e2e8f0; /* Testo output chiaro */
+            font-family: 'Roboto Mono', monospace; /* Font monospace per la password, per chiarezza */
+            text-align: center; /* Centra il testo */
+        }
+        /* Stili per il campo output al focus */
+        .text-output:focus {
+            border-color: #a78bfa; /* Viola al focus */
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.3); /* Ombra esterna al focus */
+        }
+        .checkbox-group {
+            display: flex; /* Utilizza flexbox per gli elementi della checkbox */
+            align-items: center; /* Allinea verticalmente gli elementi al centro */
+            gap: 0.5rem; /* Spazio tra checkbox e label */
+            cursor: pointer; /* Cambia il cursore a "pointer" */
+        }
+        /* Stili per le checkbox */
+        .checkbox-group input[type="checkbox"] {
+            width: 1.25rem; /* Larghezza della checkbox */
+            height: 1.25rem; /* Altezza della checkbox */
+            border-radius: 0.25rem; /* Bordi leggermente arrotondati */
+            border: 2px solid #6366f1; /* Bordo indaco */
+            accent-color: #a78bfa; /* Colore della spunta viola */
+            cursor: pointer; /* Cambia il cursore a "pointer" */
+            background-color: #4a5568; /* Sfondo della checkbox */
+        }
+        .checkbox-group label {
+            font-size: 1rem; /* Dimensione del font dell'etichetta */
+            color: #e2e8f0; /* Colore del testo etichetta chiaro */
+            cursor: pointer; /* Cambia il cursore a "pointer" */
+        }
+        .buttons-group {
+            display: flex; /* Utilizza flexbox per i pulsanti */
+            gap: 1rem; /* Spazio tra i pulsanti */
+            justify-content: center; /* Centra i pulsanti orizzontalmente */
+            flex-wrap: wrap; /* Permette ai pulsanti di andare a capo su schermi più piccoli */
+        }
+        .action-button {
+            padding: 0.75rem 1.5rem; /* Padding interno del pulsante */
+            border-radius: 0.75rem; /* Bordi arrotondati */
+            font-weight: 600; /* Grassetto */
+            cursor: pointer; /* Cambia il cursore a "pointer" */
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out; /* Transizioni per hover/click */
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.2), 0 3px 5px -1px rgba(0, 0, 0, 0.1); /* Ombra del pulsante */
+            flex-grow: 1; /* Permette ai pulsanti di crescere e occupare spazio */
+            text-align: center; /* Centra il testo del pulsante */
+            border: none; /* Rimuove i bordi predefiniti del browser */
+        }
+        /* Stili specifici per il pulsante "Genera Password" */
+        .generate-button {
+            background-color: #a78bfa; /* Viola vibrante */
+            color: white; /* Testo bianco */
+        }
+        /* Stili per il pulsante "Genera Password" al hover */
+        .generate-button:hover {
+            background-color: #8b5cf6; /* Viola più scuro al hover */
+            transform: translateY(-2px); /* Effetto "pop" verso l'alto */
+            box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15); /* Ombra più pronunciata al hover */
+        }
+        /* Stili specifici per il pulsante "Copia Password" */
+        .copy-button {
+            background-color: #38b2ac; /* Verde acqua vibrante */
+            color: white; /* Testo bianco */
+        }
+        /* Stili per il pulsante "Copia Password" al hover */
+        .copy-button:hover {
+            background-color: #319795; /* Verde acqua più scuro al hover */
+            transform: translateY(-2px); /* Effetto "pop" verso l'alto */
+            box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3), 0 4 6px -2px rgba(0, 0, 0, 0.15); /* Ombra più pronunciata al hover */
+        }
+        .message-box {
+            padding: 0.75rem 1rem; /* Padding interno */
+            border-radius: 0.5rem; /* Bordi arrotondati */
+            text-align: center; /* Centra il testo */
+            font-weight: 500; /* Spessore del font */
+            opacity: 0; /* Inizialmente invisibile */
+            transition: opacity 0.3s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Transizioni per l'animazione */
+            margin-top: 1rem; /* Margine superiore */
+            border: 1px solid; /* Bordo per i messaggi */
+        }
+        /* Classe per mostrare il messaggio */
+        .message-box.show {
+            opacity: 1; /* Rende il messaggio visibile */
+        }
+        /* Stili per i messaggi informativi */
+        .message-box.info {
+            background-color: #2a4365; /* Blu scuro */
+            color: #a0aec0; /* Blu chiaro */
+            border-color: #4299e1; /* Bordo blu */
+        }
+        /* Stili per i messaggi di successo */
+        .message-box.success {
+            background-color: #276749; /* Verde scuro */
+            color: #c6f6d5; /* Verde chiaro */
+            border-color: #48bb78; /* Bordo verde */
+        }
+        /* Stili per i messaggi di errore */
+        .message-box.error {
+            background-color: #822727; /* Rosso scuro */
+            color: #fed7d7; /* Rosso chiaro */
+            border-color: #f56565; /* Bordo rosso */
+        }
+
+        /* Stili per l'indicatore di sicurezza della password */
+        .strength-indicator {
+            margin-top: 1rem; /* Margine superiore */
+            display: flex; /* Utilizza flexbox per allineare la barra e il testo */
+            flex-direction: column; /* Elementi in colonna */
+            gap: 0.5rem; /* Spazio tra gli elementi */
+            font-size: 0.9rem; /* Dimensione del font */
+            font-weight: 600; /* Grassetto */
+            color: #cbd5e1; /* Colore testo predefinito */
+        }
+        .strength-bar-container {
+            width: 100%; /* Larghezza al 100% */
+            height: 10px; /* Altezza della barra */
+            background-color: #4a5568; /* Sfondo della barra grigio scuro */
+            border-radius: 5px; /* Bordi arrotondati */
+            overflow: hidden; /* Nasconde ciò che esce dai bordi */
+        }
+        .strength-bar {
+            height: 100%; /* Altezza al 100% del contenitore */
+            width: 0%; /* Inizialmente larghezza 0 */
+            border-radius: 5px; /* Bordi arrotondati */
+            transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out; /* Transizione per larghezza e colore */
+        }
+
+        /* Classi di colore per i livelli di sicurezza */
+        .strength-bar.weak { background-color: #ef4444; } /* Rosso */
+        .strength-bar.medium { background-color: #f97316; } /* Arancione */
+        .strength-bar.strong { background-color: #eab308; } /* Giallo */
+        .strength-bar.very-strong { background-color: #22c55e; } /* Verde */
+
+        /* Regolazioni responsive per schermi più piccoli (max-width: 640px) */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem; /* Riduce il padding del contenitore */
+                border-radius: 1rem; /* Riduce il raggio dei bordi */
+            }
+            .buttons-group {
+                flex-direction: column; /* I pulsanti si dispongono in colonna */
+            }
+            .action-button {
+                width: 100%; /* I pulsanti occupano l'intera larghezza */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen p-8">
+    <div class="container">
+        <h1 class="text-4xl font-extrabold text-center mb-4">Password Generator v1.0</h1>
+
+        <div class="input-group">
+            <label for="passwordLength" class="input-label">Lunghezza Password: <span id="lengthValue">12</span></label>
+            <input type="range" id="passwordLength" min="6" max="30" value="12" class="range-input">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label mb-2">Includi:</label>
+            <div class="flex flex-col gap-3">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeUppercase" checked>
+                    <label for="includeUppercase">Lettere Maiuscole (ABC)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeNumbers" checked>
+                    <label for="includeNumbers">Numeri (123)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSymbols" checked>
+                    <label for="includeSymbols">Simboli (!@#)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="generatedPassword" class="input-label">La tua Password:</label>
+            <input type="text" id="generatedPassword" readonly class="text-output cursor-not-allowed">
+        </div>
+
+        <!-- Nuovo elemento: Indicatore di sicurezza della password -->
+        <div id="strengthIndicator" class="strength-indicator">
+            <div class="flex justify-between items-center w-full">
+                <span>Sicurezza Password:</span>
+                <span id="strengthText">0%</span>
+            </div>
+            <div class="strength-bar-container">
+                <div id="strengthBar" class="strength-bar"></div>
+            </div>
+        </div>
+
+        <div class="buttons-group">
+            <button id="generateButton" class="action-button generate-button">Genera Password</button>
+            <button id="copyButton" class="action-button copy-button">Copia Password</button>
+        </div>
+
+        <div id="messageBox" class="message-box"></div>
+    </div>
+
+    <script>
+        // Ottieni riferimenti agli elementi del DOM per manipolarli tramite JavaScript
+        const passwordLengthInput = document.getElementById('passwordLength');
+        const lengthValueSpan = document.getElementById('lengthValue');
+        const includeUppercaseCheckbox = document.getElementById('includeUppercase');
+        const includeNumbersCheckbox = document.getElementById('includeNumbers');
+        const includeSymbolsCheckbox = document.getElementById('includeSymbols');
+        const generatedPasswordInput = document.getElementById('generatedPassword');
+        const generateButton = document.getElementById('generateButton');
+        const copyButton = document.getElementById('copyButton');
+        const messageBox = document.getElementById('messageBox');
+
+        // Nuovi riferimenti per l'indicatore di sicurezza
+        const strengthIndicator = document.getElementById('strengthIndicator');
+        const strengthText = document.getElementById('strengthText');
+        const strengthBar = document.getElementById('strengthBar');
+
+        // Definisci i set di caratteri da utilizzare per la generazione della password
+        const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+        const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numberChars = '0123456789';
+        const symbolChars = '!@#$%^&*()-_+=[]{}|;:,.<>?';
+
+        // Aggiorna il valore numerico visualizzato accanto allo slider della lunghezza password
+        passwordLengthInput.addEventListener('input', () => {
+            lengthValueSpan.textContent = passwordLengthInput.value;
+            generatePassword(); // Rigenera e valuta la password anche al cambio di lunghezza
+        });
+
+        /**
+         * Mostra un messaggio temporaneo all'utente nella messageBox.
+         * @param {string} message - Il testo del messaggio da visualizzare.
+         * @param {string} type - Il tipo di messaggio ('info', 'success', 'error') per applicare stili diversi.
+         */
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message; // Imposta il testo del messaggio
+            // Rimuovi tutte le classi di tipo (info, success, error) prima di aggiungerne una nuova
+            messageBox.classList.remove('info', 'success', 'error');
+            // Aggiungi la classe del tipo specificato e la classe 'show' per rendere il messaggio visibile
+            messageBox.classList.add(type, 'show');
+
+            // Nascondi il messaggio dopo 2 secondi
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 2000);
+        }
+
+        /**
+         * Calcola il punteggio di sicurezza della password.
+         * Il punteggio è basato sulla lunghezza e sui tipi di caratteri inclusi.
+         * @param {string} password - La password da valutare.
+         * @returns {number} Un punteggio da 0 a 100.
+         */
+        function checkPasswordStrength(password) {
+            let score = 0;
+
+            // Punti basati sulla lunghezza (fino a 50 punti)
+            // Min length 6, Max length 30. Range = 24.
+            // (length - 6) / 24 * 50
+            if (password.length > 0) {
+                score += Math.min(50, ((password.length - 6) / 24) * 50);
+            }
+            if (password.length >= 8) score += 10; // Bonus per lunghezza accettabile
+            if (password.length >= 12) score += 10; // Bonus per lunghezza buona
+            if (password.length >= 16) score += 10; // Bonus per lunghezza ottima
+
+
+            // Punti per l'inclusione di caratteri diversi
+            // Utilizziamo un RegExp per controllare la presenza di almeno un carattere del tipo
+            const hasLowercase = /[a-z]/.test(password);
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasNumbers = /[0-9]/.test(password);
+            const hasSymbols = /[!@#$%^&*()-_+=[]{}\|;:,.<>?]/.test(password);
+
+
+            // Aggiungi punti solo se la checkbox è selezionata E il tipo di carattere è presente nella password
+            if (includeUppercaseCheckbox.checked && hasUppercase) score += 15;
+            if (includeNumbersCheckbox.checked && hasNumbers) score += 15;
+            if (includeSymbolsCheckbox.checked && hasSymbols) score += 20;
+
+            // Se la password è vuota o molto corta, il punteggio è 0
+            if (password.length === 0) {
+                score = 0;
+            } else if (password.length < 6) {
+                score = 0; // Se la lunghezza è inferiore al minimo, la forza è molto bassa
+            }
+
+
+            // Assicurati che il punteggio sia compreso tra 0 e 100
+            score = Math.max(0, Math.min(100, Math.round(score)));
+            return score;
+        }
+
+
+        /**
+         * Aggiorna l'interfaccia utente dell'indicatore di sicurezza.
+         * @param {number} score - Il punteggio di sicurezza della password (0-100).
+         */
+        function updateStrengthIndicator(score) {
+            strengthText.textContent = `${score}%`; // Aggiorna il testo del punteggio
+            strengthBar.style.width = `${score}%`; // Imposta la larghezza della barra
+
+            // Rimuovi tutte le classi di colore esistenti
+            strengthBar.classList.remove('weak', 'medium', 'strong', 'very-strong');
+
+            // Aggiungi la classe di colore appropriata in base al punteggio
+            if (score <= 20) {
+                strengthBar.classList.add('weak');
+            } else if (score <= 40) {
+                strengthBar.classList.add('medium');
+            } else if (score <= 70) { /* Changed from 60 to 70 for 'strong' */
+                strengthBar.classList.add('strong');
+            } else {
+                strengthBar.classList.add('very-strong');
+            }
+        }
+
+        /**
+         * Genera una password basata sulle opzioni selezionate dall'utente.
+         * Dopo la generazione, valuta la sicurezza della password e aggiorna l'indicatore.
+         */
+        function generatePassword() {
+            let characterPool = lowercaseChars; // Le lettere minuscole sono sempre incluse di default
+            let guaranteedChars = []; // Array per i caratteri "garantiti" (uno per tipo selezionato)
+
+            // Aggiungi set di caratteri e un carattere garantito se le rispettive checkbox sono selezionate
+            if (includeUppercaseCheckbox.checked) {
+                characterPool += uppercaseChars;
+                // Aggiungiamo un carattere garantito solo se il pool di caratteri maiuscoli non è vuoto
+                if (uppercaseChars.length > 0) {
+                    guaranteedChars.push(uppercaseChars[Math.floor(Math.random() * uppercaseChars.length)]);
+                }
+            }
+            if (includeNumbersCheckbox.checked) {
+                characterPool += numberChars;
+                // Aggiungiamo un carattere garantito solo se il pool di caratteri numerici non è vuoto
+                if (numberChars.length > 0) {
+                    guaranteedChars.push(numberChars[Math.floor(Math.random() * numberChars.length)]);
+                }
+            }
+            if (includeSymbolsCheckbox.checked) {
+                characterPool += symbolChars;
+                // Aggiungiamo un carattere garantito solo se il pool di caratteri simbolici non è vuoto
+                if (symbolChars.length > 0) {
+                    guaranteedChars.push(symbolChars[Math.floor(Math.random() * symbolChars.length)]);
+                }
+            }
+
+            // Se non è selezionata alcuna opzione e il pool di caratteri è solo minuscole, o è completamente vuoto
+            // Seleziona almeno una minuscola per evitare password vuote se tutte le opzioni sono deselezionate.
+            if (characterPool.length === 0) {
+                // Questo caso dovrebbe verificarsi solo se tutte le checkbox sono deselezionate
+                // e le `lowercaseChars` sono vuote, il che non è il caso qui.
+                // Tuttavia, per robustezza, assicuriamo che ci sia almeno un tipo di carattere.
+                characterPool = lowercaseChars; // fallback alle sole minuscole
+                showMessage('Nessun tipo di carattere selezionato. Genererò con sole minuscole.', 'info');
+            } else if (!includeUppercaseCheckbox.checked && !includeNumbersCheckbox.checked && !includeSymbolsCheckbox.checked) {
+                // Se solo le minuscole sono attive (checkbox deselezionate), assicurati che il pool sia solo minuscole
+                characterPool = lowercaseChars;
+            }
+
+
+            let password = '';
+            const passwordLength = parseInt(passwordLengthInput.value); // Ottieni la lunghezza desiderata
+
+            // Se la lunghezza desiderata è inferiore al numero di caratteri garantiti, prendiamo solo la lunghezza desiderata
+            const actualGuaranteedChars = guaranteedChars.slice(0, passwordLength);
+            password += actualGuaranteedChars.join('');
+
+            // Riempi il resto della password con caratteri casuali dal pool completo
+            for (let i = password.length; i < passwordLength; i++) {
+                const randomIndex = Math.floor(Math.random() * characterPool.length);
+                password += characterPool[randomIndex];
+            }
+
+            // Mescola la password per assicurare che i caratteri garantiti non siano sempre all'inizio
+            // Questo rende la password più casuale e meno prevedibile
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+            generatedPasswordInput.value = password; // Imposta la password generata nel campo di output
+
+            // Valuta la sicurezza della nuova password e aggiorna l'indicatore
+            const strengthScore = checkPasswordStrength(password);
+            updateStrengthIndicator(strengthScore);
+        }
+
+        /**
+         * Copia la password generata negli appunti del sistema.
+         */
+        function copyPassword() {
+            // Controlla se il campo password non è vuoto
+            if (generatedPasswordInput.value) {
+                generatedPasswordInput.select(); // Seleziona tutto il testo nel campo input
+                // Utilizza document.execCommand('copy') perché navigator.clipboard.writeText() potrebbe non funzionare
+                // in ambienti iframe per ragioni di sicurezza.
+                document.execCommand('copy');
+                showMessage('Password copiata negli appunti!', 'success'); // Mostra messaggio di successo
+            } else {
+                showMessage('Genera prima una password!', 'error'); // Mostra messaggio di errore
+            }
+        }
+
+        // Event Listeners per i pulsanti e le checkbox per rigenerare la password
+        generateButton.addEventListener('click', generatePassword); // Al click sul pulsante "Genera"
+        copyButton.addEventListener('click', copyPassword); // Al click sul pulsante "Copia"
+
+        // Rigenera la password ogni volta che una delle opzioni di inclusione cambia
+        includeUppercaseCheckbox.addEventListener('change', generatePassword);
+        includeNumbersCheckbox.addEventListener('change', generatePassword);
+        includeSymbolsCheckbox.addEventListener('change', generatePassword);
+        // L'evento 'input' per passwordLengthInput già chiama generatePassword()
+
+        // Genera una password all'avvio della pagina per avere un valore predefinito
+        document.addEventListener('DOMContentLoaded', () => {
+            generatePassword();
+        });
+    </script>
+</body>
+</html>
